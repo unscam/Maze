@@ -4,6 +4,7 @@ A colorful C-based maze game where you navigate through a 20x20 maze while avoid
 
 ## Table of Contents
 - [How to Play](#how-to-play)
+- [Making the Game Fullscreen](#making-the-game-fullscreen)
 - [Color System Explained](#color-system-explained)
 - [Customizing Your Own Colors](#customizing-your-own-colors)
 - [Creating Your Own Maze](#creating-your-own-maze)
@@ -16,6 +17,187 @@ A colorful C-based maze game where you navigate through a 20x20 maze while avoid
 - Avoid the enemies (E1, E2, E3)
 - Reach the goal ($) to win!
 - Press **E** to exit anytime
+
+---
+
+## Making the Game Fullscreen
+
+### Method 1: Manual (Easy)
+1. Run your game
+2. Press **Alt + Enter** on your keyboard
+3. The console will go fullscreen!
+4. Press **Alt + Enter** again to exit fullscreen
+
+### Method 2: Automatic (Add to Code)
+
+Add this function to your code:
+```c
+void setFullscreen(void)
+{
+    keybd_event(VK_MENU, 0x38, 0, 0);              // Press Alt
+    keybd_event(VK_RETURN, 0x1c, 0, 0);            // Press Enter
+    keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0);  // Release Enter
+    keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);    // Release Alt
+}
+```
+
+Then call it at the start of `main()`:
+```c
+int main(void)
+{
+    setFullscreen();  // Make window fullscreen automatically
+    
+    char input;
+    while (1)
+    {
+        displayMaze();
+        // ... rest of code
+    }
+}
+```
+
+### Method 3: Start Fullscreen (Properties)
+
+**For compiled .exe file:**
+1. Right-click your `maze.exe` file
+2. Click **Properties**
+3. Go to **Layout** tab
+4. Check **Full Screen** option
+5. Click **OK**
+6. Now it always starts fullscreen!
+
+### Method 4: Maximize Window (Alternative)
+
+If fullscreen doesn't work, try maximizing the window instead:
+```c
+void maximizeWindow(void)
+{
+    HWND consoleWindow = GetConsoleWindow();
+    ShowWindow(consoleWindow, SW_MAXIMIZE);
+}
+```
+
+Add to `main()`:
+```c
+int main(void)
+{
+    maximizeWindow();  // Maximize the window
+    
+    char input;
+    while (1)
+    {
+        displayMaze();
+        // ... rest of code
+    }
+}
+```
+
+### Method 5: Set Console Size (Most Reliable)
+
+This method sets a custom console size that fits your maze perfectly:
+```c
+void setConsoleSize(void)
+{
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SMALL_RECT windowSize = {0, 0, 79, 49};  // Width, Height
+    COORD bufferSize = {80, 50};
+    
+    SetConsoleWindowInfo(hConsole, TRUE, &windowSize);
+    SetConsoleScreenBufferSize(hConsole, bufferSize);
+}
+```
+
+Call it in `main()`:
+```c
+int main(void)
+{
+    setConsoleSize();  // Set perfect window size
+    
+    char input;
+    while (1)
+    {
+        displayMaze();
+        // ... rest of code
+    }
+}
+```
+
+**Adjust the numbers:**
+- For bigger: `{0, 0, 99, 59}` and `{100, 60}`
+- For smaller: `{0, 0, 59, 39}` and `{60, 40}`
+
+### Complete Example with Fullscreen
+
+Here's the complete code with automatic fullscreen:
+```c
+#define _CRT_SECURE_NO_WARNINGS 1
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+
+#define WIDTH 20
+#define HEIGHT 20
+
+// ... (your maze array and other code here)
+
+// Fullscreen function
+void setFullscreen(void)
+{
+    keybd_event(VK_MENU, 0x38, 0, 0);
+    keybd_event(VK_RETURN, 0x1c, 0, 0);
+    keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0);
+    keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);
+}
+
+// OR use maximize instead
+void maximizeWindow(void)
+{
+    HWND consoleWindow = GetConsoleWindow();
+    ShowWindow(consoleWindow, SW_MAXIMIZE);
+}
+
+int main(void)
+{
+    // Choose one method:
+    setFullscreen();     // Method 1: Fullscreen
+    // maximizeWindow();  // Method 2: Maximize
+    
+    char input;
+    while (1)
+    {
+        displayMaze();
+        setColor(11);
+        printf("  >> Your move: ");
+        setColor(7);
+        scanf(" %c", &input);
+        
+        // ... rest of your game code
+    }
+    
+    getchar();
+    return 0;
+}
+```
+
+### Troubleshooting Fullscreen
+
+**Problem: Fullscreen not working**
+- Try Method 2 (maximize) instead
+- Some systems don't support fullscreen console
+
+**Problem: Screen is too small even in fullscreen**
+- Increase console font size:
+  1. Right-click title bar → Properties
+  2. Go to Font tab
+  3. Choose larger font (try 16 or 20)
+
+**Problem: Maze gets cut off**
+- Use Method 5 (setConsoleSize) to fit your maze
+- Or make your maze smaller
+
+**Problem: Can't exit fullscreen**
+- Press **Alt + Enter** again
+- Or press **Esc** key
 
 ---
 
